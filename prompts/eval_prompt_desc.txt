@@ -1,0 +1,43 @@
+You are provided with a detailed **video description**, an **instruction**, a gold standard **response** rated 5 (perfectly accurate, highest quality), and a set of candidate **responses** for a **video understanding task**. This task may include **video captioning**, **question answering**, **instruction following**, **temporal action localization**, or any other open-ended **video understanding** scenario.
+
+## Task:
+Your task is to **evaluate each candidate response** and assign an **evaluation rating** from **1** to **4**. While the gold standard **response** can serve as a reference for what an ideal **response** looks like, your evaluation should primarily focus on how well each candidate **response** fulfills the task defined by the **instruction**, given the provided **video description**. Focus your reasoning on identifying what is **incorrect**, **missing**, or **misleading** in the **response** itself.
+
+## Evaluation Steps:
+1. Read the **instruction** carefully to understand the intended **video** task.
+2. Refer to the gold standard **response** (rated 5) as a reference for correctness and completeness.
+3. Use the provided **video description** as the factual basis for evaluating all responses.
+4. For each candidate **response**:
+   - Identify any **inaccuracies**, **omissions**, **hallucinations**, or **irrelevant content**.
+   - Evaluate how well it fulfills the task defined in the **instruction**, considering the overall meaning, relevance, and consistency with the **video description**.
+   - Justify the rating using the rubric below.
+5. Assign an integer score from **1** to **4** to each candidate **response**.
+6. Provide your reasoning for each rating, focusing on the specific aspects of the **response** that affect its alignment with the **instruction** and the underlying **video description**.
+
+## Rating Guidelines for Evaluation:
+- **Rating 4**: Mostly accurate with minor issues. The response preserves the key meaning and relevance, with only small lapses in detail or precision.
+- **Rating 3**: Partially correct. The response conveys the general idea but includes noticeable errors, omissions, or misinterpretations.
+- **Rating 2**: Poor alignment. The response has serious flaws and only loosely relates to the instruction or video.
+- **Rating 1**: Unrelated or incorrect. The response fails to reflect the video or follow the instruction meaningfully.
+
+## Example:
+**Instruction**: "Can you give a brief summary of the video content?"
+**Video Description**: "A large group of people are participating in an aerobics class inside a spacious indoor venue. The floor is covered with blue carpet, and small, purple, and gray exercise steps are placed at regular intervals for the participants to use. In the foreground, a woman with blonde hair is leading the class, wearing a white sleeveless top and black pants. She is stepping energetically on her exercise step, demonstrating the routine with clear, rhythmic movements. Her movements include stepping up and down, side-to-side, and incorporating arm exercises.
+Participants of varying ages and styles, some wearing casual workout attire and others in more colorful, patterned outfits, are following her lead. They are spread across the room, each on their own exercise step, mirroring her movements. The atmosphere is lively, with everyone engaged in the routine. In the background, there is a stage area with musical equipment, indicating that music is likely accompanying the class. The walls are white, and the ceiling is high, with some beams visible, contributing to the spacious feel of the venue. The scene captures the dynamic energy of a group exercise class, with participants moving synchronously to the lead instructor's guidance."
+**Gold Standard Response (Rating 5)**: "The video is about a group of people doing a step exercise class, with some confusion among the participants. The focus is on the main woman, who stops at the end and walks towards the camera."
+- **Rating 4**: "The video shows a group of people in a step exercise class, with some participants appearing confused during the workout. The main woman stops exercising at the end and moves toward the camera."
+- **Rating 3**: "The video features people doing an aerobics class with stepping movements and some coordination issues. There's a woman who seems to be leading the group, and she approaches the camera at some point during the session."
+- **Rating 2**: "The video shows several people in what appears to be a dance or fitness routine taking place indoors. A woman in the group walks around and comes closer to where the video is being filmed, while others continue moving in the background."
+- **Rating 1**: "The video depicts a cooking demonstration where a chef wearing workout clothes explains different healthy recipes to a small audience in what looks like a kitchen or dining area, with people standing around tables."
+
+## Output Format:
+Your final output **must** follow the exact JSON schema provided. Do **not** include any additional formatting, comments, or text outside of the JSON object.
+
+## Input:
+**Instruction**: {instruction}  
+**Video Description**: {video_description}  
+**Gold Standard Response (Rating 5)**: {gold_standard_response}  
+**Generated Responses**: {generated_responses}
+
+## Output (according to the JSON schema):
+{output_format}

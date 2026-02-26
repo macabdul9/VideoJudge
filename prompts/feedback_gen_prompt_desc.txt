@@ -1,0 +1,47 @@
+You are provided with a detailed **video description**, an **instruction**, a gold standard **response** for a **video understanding task** (such as **captioning**, **question answering**, **instruction following**, or **event description**), and a set of generated **responses**, each intended to match a specific **quality rating** from **4** to **1**. However, some generated **responses** were evaluated and found to deviate from their intended quality levels.
+
+Your task is to regenerate revised **responses** only for those entries where the absolute difference between the **intended rating** and the **evaluation rating** is greater than zero (i.e., |**intended_rating** − **eval_rating**| > 0).
+
+## Task:
+For each such entry, your task is to produce a revised **response** that strictly conforms to the **intended quality rating**, based on the definitions in the **rating guidelines** below. Use the **video description** as the factual grounding for determining what content is valid. Adjust the **response** so that its **evaluation rating** would now **exactly** match the **intended rating**.
+
+- If the **eval_rating** is higher than the **intended_rating**, degrade the **response** by introducing errors such as **hallucinations**, **factual distortions**, **vagueness**, or **grammar issues**.
+- If the **eval_rating** is lower than the **intended_rating**, improve the **response** by clarifying actions, reducing errors, or restoring key context from the **video description**.
+
+## Rating Guidelines:
+- **Rating 4**: Mostly accurate with minor issues. The **response** preserves the key meaning and relevance, with only small lapses in detail or precision.
+- **Rating 3**: Partially correct. The **response** conveys the general idea but includes noticeable errors, omissions, or misinterpretations.
+- **Rating 2**: Poor alignment. The **response** has serious flaws and only loosely relates to the **instruction** or **video**.
+- **Rating 1**: Unrelated or incorrect. The **response** fails to reflect the **video** or follow the **instruction** meaningfully.
+
+## Example:
+**Instruction**: "Can you give a brief summary of the video content?"
+**Video Description**: "A large group of people are participating in an aerobics class inside a spacious indoor venue. The floor is covered with blue carpet, and small, purple, and gray exercise steps are placed at regular intervals for the participants to use. In the foreground, a woman with blonde hair is leading the class, wearing a white sleeveless top and black pants. She is stepping energetically on her exercise step, demonstrating the routine with clear, rhythmic movements. Her movements include stepping up and down, side-to-side, and incorporating arm exercises.
+Participants of varying ages and styles, some wearing casual workout attire and others in more colorful, patterned outfits, are following her lead. They are spread across the room, each on their own exercise step, mirroring her movements. The atmosphere is lively, with everyone engaged in the routine. In the background, there is a stage area with musical equipment, indicating that music is likely accompanying the class. The walls are white, and the ceiling is high, with some beams visible, contributing to the spacious feel of the venue. The scene captures the dynamic energy of a group exercise class, with participants moving synchronously to the lead instructor's guidance."
+**Gold Standard Response (Rating 5)**: "The video is about a group of people doing a step exercise class, with some confusion among the participants. The focus is on the main woman, who stops at the end and walks towards the camera."
+- **Rating 4**: "The video shows a group of people in a step exercise class, with some participants appearing confused during the workout. The main woman stops exercising at the end and moves toward the camera."
+- **Rating 3**: "The video features people doing an aerobics class with stepping movements and some coordination issues. There's a woman who seems to be leading the group, and she approaches the camera at some point during the session."
+- **Rating 2**: "The video shows several people in what appears to be a dance or fitness routine taking place indoors. A woman in the group walks around and comes closer to where the video is being filmed, while others continue moving in the background."
+- **Rating 1**: "The video depicts a cooking demonstration where a chef wearing workout clothes explains different healthy recipes to a small audience in what looks like a kitchen or dining area, with people standing around tables."
+
+## Output Format:
+Your final output must be a valid **JSON object**. For each entry where |**intended_rating** − **eval_rating**| > 0, include a key `"rating_{{i}}"` and update the value with a newly revised **response** that adheres precisely to the **intended quality rating**.
+
+If the **eval_rating** is equal to the **intended_rating**, do not modify or include that entry. Only output the revised **responses**.
+
+## Input:
+**Instruction**: {instruction}
+**Video Description**: {video_description}
+**Gold Standard Response (Rating 5)**: {gold_standard_response}
+**Feedback Data** (in **JSON** format):
+Each entry includes:
+- `"rating_{{i}}"`: the generated **response** for quality rating *i*  
+- `"intended_rating"`: the target **quality rating** (integer from 1 to 4)  
+- `"eval_rating"`: the actual **evaluation rating** assigned (integer from 1 to 4)
+
+{feedback_data}
+
+You must regenerate only those **responses** where |**intended_rating** − **eval_rating**| > 0.
+
+## Output (according to the JSON schema):
+{output_format}

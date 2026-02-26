@@ -1,0 +1,44 @@
+I am going to show you a multiple human-written descriptions of a video clip. These descriptions are accurate references for the video's content. You will also be given two AI-generated candidate descriptions of the same video.
+Your task is to select the AI-generated description that is most similar to the human-written descriptions. Consider overall meaning, key details, and specific entities mentioned. 
+
+## Instructions
+1. Carefully read all human-written descriptions to understand the video content
+2. Compare each candidate AI-generated description against the human descriptions
+3. Select the candidate that most accurately reflects the video content as described by humans
+4. Consider semantic similarity, factual accuracy, and inclusion of key elements mentioned across human descriptions
+
+## Evaluation Criteria
+- Content accuracy: Does the candidate description capture the main subjects, actions, and setting?
+- Factual consistency: Does the candidate description avoid contradicting details mentioned by multiple human annotators?
+- Comprehensiveness: Does the candidate description include important details consistently mentioned by humans?
+- Relevance: Does the candidate description avoid adding extraneous details not supported by human descriptions?
+
+## Output Format
+- Return only a single number (1 or 2) indicating which candidate description is better
+- Do not include explanations, reasoning, or any other text
+
+
+## Example
+Human descriptions:
+1. A person walking a dog in a park.
+2. A man walking a dog in a garden.
+3. A dog is on the leash and a man walks next to it.
+
+Candidate 1: A cat strolling in the park.
+Candidate 2: A man walking a dog in a park.
+
+Output: 2
+
+
+
+You will now perform a similar task for a new video clip.
+Here are the human descriptions and candidate descriptions for the video clip.
+Please select the best candidate description from the two options using the human descriptions as reference.
+
+Human descriptions:
+{human_descriptions}
+
+Candidate 1: {candidate1}
+Candidate 2: {candidate2}
+
+Output: <SELECT 1 OR 2>

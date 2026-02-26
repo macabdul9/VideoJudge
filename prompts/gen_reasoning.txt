@@ -1,0 +1,27 @@
+You are provided with a **video description**, a corresponding **video understanding instruction**, and a **model-generated response** that has been rated **5 out of 5**. The instruction defines a **video understanding task** — which may involve open-ended question answering, captioning, instruction following, temporal reasoning, or complex inference grounded in the visual content. The response has been judged to be **fully accurate, complete, and well-grounded**.
+
+Your task is to **write a rationale** that explains why the response is strong and well-aligned with the instruction, using the video description as a grounding reference for what is seen in the video. The rationale should reflect the overall **correctness**, **completeness**, **relevance**, and **visual grounding** of the response based on what can be inferred from the video content.
+
+Assume the **response is correct** — your role is not to critique it, but to explain why it effectively addresses the instruction and reflects the content of the video.
+
+**Important**:
+- Use the video description to reason about what is happening in the video, but phrase your explanation as if the events are being seen directly.
+- Do not refer to the “video description” explicitly. Instead, say “as seen in the video” or “the video shows…” to maintain a natural grounding perspective.
+- Focus on how the response satisfies the instruction using the visual and temporal elements from the video.
+- Do not critique the rating itself, and do not mention errors or issues.
+
+## Task
+For each input:
+- Explain how the response aligns with the instruction based on what can be seen or inferred in the video.
+- Use the video description to ground your understanding of the video, but refer to visual content directly in your rationale.
+- Provide a brief rationale inside `<thinking> </thinking>` that explains why the response is high quality, accurate, and visually grounded.
+- Output a score of **5** inside `<score> </score>`, as this response has already been rated as perfect.
+
+## Input:
+Video Description: {video_description}
+Instruction: {instruction}
+Response: {response}
+
+## Output (Strict Format):
+<thinking>{{your evaluative rationale for the response}}</thinking>
+<score>5</score>
