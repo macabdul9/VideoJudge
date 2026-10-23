@@ -8,9 +8,8 @@ Carnegie Mellon University
 
 [![Paper](https://img.shields.io/badge/Paper-ICLR%202026-blue?logo=readthedocs&logoColor=white)](https://openreview.net/pdf?id=31CznLfRIS)
 [![Code](https://img.shields.io/badge/Code-GitHub-181717?logo=github&logoColor=white)](https://github.com/macabdul9/VideoJudge)
-[![Datasets](https://img.shields.io/badge/Datasets-Hugging%20Face-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/uEval?tab=datasets)
-[![Models](https://img.shields.io/badge/Models-uEval-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/uEval?tab=models)
-[![Models](https://img.shields.io/badge/Models-uEval2-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/uEval2?tab=models)
+[![Datasets](https://img.shields.io/badge/Datasets-Hugging%20Face-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/VideoJudge?tab=datasets)
+[![Models](https://img.shields.io/badge/Models-Hugging%20Face-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/VideoJudge?tab=models)
 
 VideoJudge evaluates responses to video-understanding tasks. We bootstrap rating-controlled
 responses through a generator–evaluator feedback loop and fine-tune Qwen2.5-VL judges
@@ -50,20 +49,19 @@ training and inference still need a smoke test on the target CUDA stack.
 
 ## Models and datasets
 
-The experiment scripts use the following Hugging Face IDs. Final public availability
-and release locations are being confirmed; local datasets and checkpoints can be
-used with the same commands.
+Our models and datasets are hosted in the [VideoJudge organization](https://huggingface.co/VideoJudge).
 
 | Artifact | Dataset or model ID |
 | --- | --- |
-| Pointwise training data | `uEval/VideoJudge-RS-20K` |
-| Pairwise training data | `uEval/VideoJudge-RS-20K-Preference` |
-| VideoJudge-3B pointwise | `uEval/Qwen2.5-VL-3B-Instruct-VideoJudge-RS-20K` |
-| VideoJudge-7B pointwise | `uEval/Qwen2.5-VL-7B-Instruct-VideoJudge-RS-20K` |
-| VideoJudgeVCG-MetaEval | `uEval/VideoJudgeVCG-MetaEval` |
-| VideoJudgeLLaVA-MetaEval | `uEval/VideoJudgeLLaVA-MetaEval` |
-| LongVideoBench evaluation data | `uEval/LongVideoBench-MetaEval` |
-| VideoAutoArena pairwise data | `uEval/VideoAutoArena-MetaEval-Preference` |
+| Pointwise training data | `VideoJudge/VideoJudge-RS-20K` |
+| Pairwise training data | `VideoJudge/VideoJudge-RS-20K-Preference` |
+| Rubric training data | `VideoJudge/VideoJudgeWithRubric-RS-20K` |
+| VideoJudge-3B with rubric | `VideoJudge/Qwen2.5-VL-3B-Instruct-VideoJudgeWithRubric-RS-20K` |
+| VideoJudge-7B with rubric | `VideoJudge/Qwen2.5-VL-7B-Instruct-VideoJudgeWithRubric-RS-20K` |
+| VideoJudge-7B pairwise | `VideoJudge/Qwen2.5-VL-7B-Instruct-VideoJudge-RS-20K-Preference-200K` |
+| LongVideoBench evaluation data | `VideoJudge/LongVideoBench-MetaEval` |
+| VATEX evaluation data | `VideoJudge/VatexEval-MetaEval` |
+| Human preference evaluation data | `VideoJudge/VideoJudgeH-PreferenceEval` |
 
 Download and extract the corresponding videos separately. `--video-dir` specifies
 the directory against which each example's `video_file` is resolved. Dataset access
@@ -75,10 +73,12 @@ may require authentication with your Hugging Face account.
 
 ```bash
 bash scripts/evaluate_pointwise.sh \
-    --model uEval/Qwen2.5-VL-3B-Instruct-VideoJudge-RS-20K \
-    --dataset uEval/VideoJudgeVCG-MetaEval \
+    --model VideoJudge/Qwen2.5-VL-3B-Instruct-VideoJudgeWithRubric-RS-20K \
+    --dataset VideoJudge/VatexEval-MetaEval \
     --split testmini \
-    --video-dir data/VideoChatGPT/videos \
+    --video-dir data/vatex/videos \
+    --rating-column score \
+    --prompt prompts/evaluation_model_with_rubric.txt \
     --output-dir runs/evaluation/pointwise
 ```
 
@@ -90,9 +90,9 @@ output directory. Invalid or missing score tags are recorded as null predictions
 
 ```bash
 bash scripts/evaluate_pairwise.sh \
-    --model PATH_TO_PAIRWISE_CHECKPOINT \
-    --dataset uEval/VideoAutoArena-MetaEval-Preference \
-    --video-dir data/VideoAutoArena \
+    --model VideoJudge/Qwen2.5-VL-7B-Instruct-VideoJudge-RS-20K-Preference-200K \
+    --dataset VideoJudge/VideoJudgeH-PreferenceEval \
+    --video-dir data/preference/videos \
     --output-dir runs/evaluation/pairwise
 ```
 
@@ -166,7 +166,7 @@ Pointwise training examples contain `video_file`, `instruction`, `response`,
 
 ```bash
 bash scripts/prepare_data.sh \
-    --dataset uEval/VideoJudge-RS-20K \
+    --dataset VideoJudge/VideoJudge-RS-20K \
     --mode pointwise \
     --video-dir data/TrainingVideos \
     --output-dir data/train/pointwise
@@ -177,7 +177,7 @@ Pairwise examples contain `video_file`, `instruction`, `selected_response`, and
 
 ```bash
 bash scripts/prepare_data.sh \
-    --dataset uEval/VideoJudge-RS-20K-Preference \
+    --dataset VideoJudge/VideoJudge-RS-20K-Preference \
     --mode pairwise \
     --video-dir data/TrainingVideos \
     --output-dir data/train/pairwise
@@ -317,6 +317,10 @@ ruff check src tests
 ruff format --check src tests
 pytest
 ```
+
+## Acknowledgements
+
+Our fine-tuning implementation is built on top of [Qwen-VL](https://github.com/QwenLM/Qwen-VL). We thank the Qwen team for releasing their models and training code.
 
 ## Citation
 
