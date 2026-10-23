@@ -475,12 +475,11 @@ Our fine-tuning implementation is built on top of [Qwen-VL](https://github.com/Q
 ## Citation
 
 ```bibtex
-@inproceedings{
-waheed2026videojudge,
-title={VideoJudge: Bootstrapping Enables Scalable Supervision of {MLLM}-as-a-Judge for Video Understanding},
-author={Abdul Waheed and Zhen Wu and Dareen Safar Alharthi and Seungone Kim and Bhiksha Raj},
-booktitle={The Fourteenth International Conference on Learning Representations},
-year={2026},
-url={https://openreview.net/forum?id=31CznLfRIS}
+@inproceedings{waheed2026videojudge,
+    title={VideoJudge: Bootstrapping Enables Scalable Supervision of {MLLM}-as-a-Judge for Video Understanding},
+    author={Abdul Waheed and Zhen Wu and Dareen Safar Alharthi and Seungone Kim and Bhiksha Raj},
+    booktitle={The Fourteenth International Conference on Learning Representations},
+    year={2026},
+    url={https://openreview.net/forum?id=31CznLfRIS}
 }
 ```
