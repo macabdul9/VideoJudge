@@ -140,6 +140,66 @@ Use the pointwise evaluator with `--rating-column is_correct`. To compute groupe
 correct-versus-distractor metrics, also pass `--group-column COLUMN` where `COLUMN`
 identifies the original question shared by its candidate answers.
 
+## Construct the meta-evaluation benchmarks
+
+Prepare videos and descriptions first, then build the VideoChatGPT and LLaVA-Video
+seed instructions from their upstream datasets:
+
+```bash
+bash scripts/prepare_benchmarks.sh seeds \
+    --benchmark vcg \
+    --video-dir data/VideoChatGPT/Test_Videos \
+    --descriptions data/vcg_descriptions.json \
+    --output data/vcg_seeds.json
+
+bash scripts/prepare_benchmarks.sh seeds \
+    --benchmark llava \
+    --video-dir data/LLaVA-Video/videos \
+    --descriptions data/llava_descriptions.json \
+    --output data/llava_seeds.json
+```
+
+VCG combines the Consistency, Generic, and Temporal configurations. LLaVA combines
+its 19 original configurations and uses the last human/assistant exchange, matching
+the original formatter. Both keep examples with locally available videos and
+shuffle twice with seed 42. Descriptions may be strings or objects containing a
+`description` field. Use `--input-dir DIR` to read local `CONFIG.json` files instead
+of downloading upstream annotations; `--configs` selects an explicit config list.
+
+Run the bootstrapping and gold-reasoning commands below on these seeds. The
+`videojudge.finalize` command writes complete five-rating pointwise examples. Build
+the evaluation splits from that JSON:
+
+```bash
+bash scripts/prepare_benchmarks.sh meta \
+    --ratings data/vcg_bootstrap/pointwise.json \
+    --seeds data/vcg_seeds.json \
+    --descriptions data/vcg_descriptions.json \
+    --mini-size 5000 \
+    --output-dir data/benchmarks/vcg
+```
+
+Repeat with the LLaVA inputs and `data/benchmarks/llava`. Original bootstrapping
+outputs can be supplied as `--csv FILE.csv` instead of `--ratings`. The converter
+keeps the first row for each instruction/rating pair, drops incomplete groups, and
+reproduces the original `test`/`testmini` shuffle sequence. New API generations can
+produce different examples; released dataset snapshots remain the reference.
+
+Run multiple prepared benchmarks sequentially:
+
+```bash
+bash scripts/run_benchmarks.sh \
+    --model VideoJudge/Qwen2.5-VL-3B-Instruct-VideoJudgeWithRubric-RS-20K \
+    --benchmarks vcg llava vatex longvideo \
+    --prompt prompts/evaluation_model_with_rubric.txt \
+    --output-dir runs/evaluation/suite
+```
+
+Edit `configs/benchmarks.json` to point at your annotation/video directories.
+LongVideoBench groups answers by the combination of video ID and instruction.
+Use a separate run and pairwise checkpoint for `--benchmarks human_preferences`.
+Add `--dry-run` to inspect every invocation without loading models or datasets.
+
 ## Calculate metrics
 
 ```bash
@@ -188,6 +248,42 @@ for the trainer. Pairwise response order is randomized with a reproducible seed.
 Use `--exclude-videos FILE.txt` to exclude known corrupt videos. For rubric
 supervision, supply `--rubric-column COLUMN` and the corresponding `--prompt`.
 
+### Pairwise training with reasoning
+
+To train the feedback variant, use examples containing `response_a`, `response_b`,
+`answer`, and `preference_reasoning`:
+
+```bash
+bash scripts/prepare_data.sh \
+    --dataset PATH_TO_REASONING_PAIRWISE_DATA.json \
+    --mode pairwise \
+    --pairwise-reasoning-column preference_reasoning \
+    --video-dir data/TrainingVideos \
+    --output-dir data/train/pairwise_with_reasoning
+```
+
+This selects `prompts/train_preference_model_with_feedback.txt` and formats targets
+as `<thinking>...</thinking>` followed by `<answer>A</answer>` or `<answer>B</answer>`.
+The supplied A/B order and reasoning are kept together; this variant does not
+randomly swap the responses. Use the existing pairwise training launcher with the
+resulting `datasets.json`.
+
+### Validate videos and apply exclusions
+
+```bash
+python -m pip install -e '.[video]'
+bash scripts/validate_videos.sh \
+    --video-dir data/TrainingVideos \
+    --workers 4 \
+    --exclude-output runs/video_checks/excluded.txt \
+    --report runs/video_checks/report.json
+```
+
+This checks for at least one decodable video frame, as in the original validation
+script; it does not certify every frame. The original training exclusion list is
+included as `configs/corrupt_videos.txt`, with machine-independent filenames.
+Pass either exclusion list to data preparation with `--exclude-videos FILE.txt`.
+
 ## Train
 
 Training uses the Qwen VL fine-tuning implementation included in `training/qwenvl/`.
@@ -225,6 +321,57 @@ Additional trainer arguments are forwarded after the output directory. For examp
 append `--video_max_frames 30` for a frame-count ablation. Use `DRY_RUN=1` to print
 the Torchrun command without starting training.
 
+## Reproduce the ablation experiments
+
+The grids in `configs/ablations.json` cover temperatures 0–1 in steps of 0.1,
+evaluation frame limits 30–180, training frame limits 30–500, and the 10K/50K/200K
+preference-subset labels used in the experiment scripts and checkpoint names.
+Every sweep accepts `--dry-run`; commands run sequentially and stop on failure.
+
+```bash
+bash scripts/run_ablations.sh temperature \
+    --model PATH_TO_CHECKPOINT \
+    --dataset data/VCGLLaVA-1K-Mix.json \
+    --video-dir data/1KTestVideos \
+    --output-dir runs/ablations/temperature
+
+bash scripts/run_ablations.sh evaluation-frames \
+    --model PATH_TO_CHECKPOINT \
+    --dataset data/VCGLLaVA-1K-Mix.json \
+    --video-dir data/1KTestVideos \
+    --fps 1 \
+    --temperature 0.5 \
+    --output-dir runs/ablations/evaluation_frames
+
+bash scripts/run_ablations.sh training-frames \
+    --model Qwen/Qwen2.5-VL-3B-Instruct \
+    --data-config data/train/frame_ablation/datasets.json \
+    --output-dir runs/ablations/training_frames
+
+bash scripts/run_ablations.sh preference-subsets \
+    --model Qwen/Qwen2.5-VL-7B-Instruct \
+    --data-config-pattern 'data/train/preference-{value}/datasets.json' \
+    --output-dir runs/ablations/preference_subsets
+```
+
+Use `--values` to run a smaller grid. Temperature 0 selects greedy decoding; positive
+temperatures enable sampling. Evaluation sweeps expose frame-sampling FPS separately
+from the maximum frame count. Training-frame sweeps retain the original ablation
+script's three epochs, two GPUs, microbatch 8, and accumulation 1. Preference-subset
+sweeps retain microbatch 4, accumulation 4, save interval 500, and 16 loader workers.
+GPU settings remain overridable through the training environment variables.
+These ablation-specific settings differ from the main training defaults above.
+
+Supply the exact prepared annotation configuration for each training subset.
+The 10K/50K/200K names were computed from shard counts in the original launcher;
+they do not establish exact row counts. For new subsets, `prepare_data.sh
+--max-samples N` selects a prefix after the existing shuffle/filter steps and
+rejects requests larger than the available dataset. It does not resample or duplicate
+examples to reach a checkpoint label.
+
+Evaluation sweeps distinguish sampling FPS from maximum frame count. Set `--fps`
+explicitly and retain the saved evaluation configuration with each run.
+
 ## Bootstrap training responses
 
 Generate factual descriptions for the available training videos:
@@ -248,7 +395,8 @@ python -m videojudge.seed \
 ```
 
 This merges the three corpora and deduplicates instructions within each video using
-MinHashLSH (128 permutations, threshold 0.9). Source dataset arguments also accept
+MinHashLSH (128 permutations, threshold 0.9). It then shuffles twice during corpus
+construction and once during sampling, matching the original three-shuffle pipeline. Source dataset arguments also accept
 local JSON files. VideoChat2 uses its first question–answer turn. Description generation and response bootstrapping are separate steps.
 
 Seed records contain `id`, `instruction`, `response` (the gold answer),
@@ -302,9 +450,11 @@ new generations can differ from the original API outputs.
 | `training/qwenvl/` | Qwen VL fine-tuning implementation |
 | `configs/` | DeepSpeed configuration |
 | `prompts/` | Plain-text generation, judging, and training prompts |
-| `tests/` | CPU checks for parsing, data formatting, refinement, and metrics |
+| `tests/` | CPU checks for parsing, data formatting, benchmark construction, and metrics |
 
-No videos, model weights, raw experiment logs, or bookkeeping manifests are bundled.
+No experimental results, prediction files, generated figures, videos, or model weights
+are bundled. Training and evaluation write generated outputs under `runs/`, which
+is excluded from Git.
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for upstream attribution.
 Dataset and checkpoint licenses follow their respective sources and base models;
 a repository-wide license for this release has not yet been selected.

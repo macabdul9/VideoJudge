@@ -10,7 +10,8 @@ requires-python = ">=3.10"
 dependencies = ["datasets>=3.2,<4", "numpy", "scipy", "tqdm", "requests", "json-repair", "datasketch"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff"]
+dev = ["pytest>=8", "ruff", "av"]
+video = ["av"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

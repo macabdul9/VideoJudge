@@ -221,3 +221,19 @@ Qwen2.5-VL/qwen-vl-finetune/data/
 *.mp4
 *.mkv
 *.webm
+
+# Generated experiment outputs must stay outside the release.
+/results/
+/results_custom/
+/preference_results/
+/outputs/
+/logs/
+/numbers/
+/figures/
+/TempAblation/
+/Ablations/
+/wandb/
+**/predictions*.json
+**/metrics*.json
+*.log
+*.out

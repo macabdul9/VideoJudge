@@ -41,7 +41,10 @@ def main() -> None:
     parser.add_argument("--response-a-column", default="response_a")
     parser.add_argument("--response-b-column", default="response_b")
     parser.add_argument("--answer-column", default="answer")
-    parser.add_argument("--group-column", help="Question ID for LongVideoBench aggregation")
+    parser.add_argument(
+        "--group-column",
+        help="Question ID column(s), comma-separated, for LongVideoBench aggregation",
+    )
     parser.add_argument(
         "--dry-run", action="store_true", help="Validate data and print the first prompt"
     )
@@ -143,7 +146,12 @@ def main() -> None:
                 true_answer=record.get(args.answer_column),
             )
         if args.group_column:
-            result["group_id"] = record[args.group_column]
+            columns = args.group_column.split(",")
+            result["group_id"] = (
+                record[columns[0]]
+                if len(columns) == 1
+                else json.dumps([record[column] for column in columns])
+            )
         output[key] = result
         if index % args.checkpoint_every == 0:
             write_json(result_file, output)

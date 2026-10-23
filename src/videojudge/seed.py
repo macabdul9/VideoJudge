@@ -95,13 +95,17 @@ def main() -> None:
     records = deduplicate([row for row in records if row["video_file"] in descriptions])
     for index, row in enumerate(records):
         row["id"] += f"__{index}"
-        row["video_description"] = descriptions[row["video_file"]]
+        description = descriptions[row["video_file"]]
+        row["video_description"] = (
+            description["description"] if isinstance(description, dict) else description
+        )
     from datasets import Dataset
 
     dataset = Dataset.from_list(records).shuffle(seed=args.seed).shuffle(seed=args.seed)
     if args.num_samples <= 0 or args.num_samples > len(dataset):
         parser.error(f"Requested {args.num_samples} examples; {len(dataset)} are available")
-    dataset = dataset.select(range(args.num_samples))
+    # random_sampling.py adds this shuffle after the two corpus-construction shuffles.
+    dataset = dataset.shuffle(seed=args.seed).select(range(args.num_samples))
     write_json(args.output, list(dataset))
     print(f"Saved {len(dataset)} seed examples")
 

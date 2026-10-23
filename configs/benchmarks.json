@@ -1,0 +1,35 @@
+{
+  "vcg": {
+    "dataset": "data/benchmarks/vcg/testmini.json",
+    "video_dir": "data/VideoChatGPT/Test_Videos",
+    "mode": "pointwise",
+    "split": "testmini"
+  },
+  "llava": {
+    "dataset": "data/benchmarks/llava/testmini.json",
+    "video_dir": "data/LLaVA-Video/videos",
+    "mode": "pointwise",
+    "split": "testmini"
+  },
+  "vatex": {
+    "dataset": "VideoJudge/VatexEval-MetaEval",
+    "video_dir": "data/vatex/videos",
+    "mode": "pointwise",
+    "split": "testmini",
+    "rating_column": "score"
+  },
+  "longvideo": {
+    "dataset": "VideoJudge/LongVideoBench-MetaEval",
+    "video_dir": "data/LongVideoBench/videos",
+    "mode": "pointwise",
+    "split": "test",
+    "rating_column": "is_correct",
+    "group_column": "video_id,instruction"
+  },
+  "human_preferences": {
+    "dataset": "VideoJudge/VideoJudgeH-PreferenceEval",
+    "video_dir": "data/preference/videos",
+    "mode": "pairwise",
+    "split": "test"
+  }
+}
