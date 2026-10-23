@@ -1,12 +1,16 @@
 # VideoJudge
 
-Code for our **ICLR 2026** paper, **VideoJudge: Bootstrapping Enables Scalable Supervision of MLLM-as-a-Judge for Video Understanding**.
+Code for our **ICLR 2026** paper, [**VideoJudge: Bootstrapping Enables Scalable Supervision of MLLM-as-a-Judge for Video Understanding**](https://openreview.net/pdf?id=31CznLfRIS).
 
 **Abdul Waheed, Zhen Wu, Dareen Safar Alharthi, Seungone Kim, and Bhiksha Raj**
 
 Carnegie Mellon University
 
-[Paper](https://arxiv.org/abs/2509.21451) · [OpenReview](https://openreview.net/forum?id=31CznLfRIS)
+[![Paper](https://img.shields.io/badge/Paper-ICLR%202026-blue?logo=readthedocs&logoColor=white)](https://openreview.net/pdf?id=31CznLfRIS)
+[![Code](https://img.shields.io/badge/Code-GitHub-181717?logo=github&logoColor=white)](https://github.com/macabdul9/VideoJudge)
+[![Datasets](https://img.shields.io/badge/Datasets-Hugging%20Face-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/uEval?tab=datasets)
+[![Models](https://img.shields.io/badge/Models-uEval-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/uEval?tab=models)
+[![Models](https://img.shields.io/badge/Models-uEval2-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/uEval2?tab=models)
 
 VideoJudge evaluates responses to video-understanding tasks. We bootstrap rating-controlled
 responses through a generator–evaluator feedback loop and fine-tune Qwen2.5-VL judges
