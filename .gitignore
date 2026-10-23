@@ -209,3 +209,15 @@ __marimo__/
 
 Qwen2.5-VL/qwen-vl-finetune/torchcodec
 Qwen2.5-VL/qwen-vl-finetune/data/
+
+# Local videos, training data, and run outputs.
+/data/
+/runs/
+/Models/
+.venv/
+.ruff_cache/
+*.safetensors
+*.pt
+*.mp4
+*.mkv
+*.webm

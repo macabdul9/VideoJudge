@@ -1,0 +1,4 @@
+vllm==0.8.5
+qwen-vl-utils==0.0.10
+av
+Pillow

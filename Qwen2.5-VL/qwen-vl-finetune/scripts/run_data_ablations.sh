@@ -1,5 +1,0 @@
-# nohup bash scripts/sft_7b_preference_data_ablation.sh Qwen2.5-VL-7B-Instruct videojudgepreference0 0 &> logs/sft_7b_preference_data_ablation_10K.log &
-
-# nohup bash scripts/sft_7b_preference_data_ablation.sh Qwen2.5-VL-7B-Instruct videojudgepreference0,videojudgepreference1,videojudgepreference2,videojudgepreference3,videojudgepreference4 1 &> logs/sft_7b_preference_data_ablation_50K.log &
-
-nohup bash scripts/sft_7b_preference_data_ablation.sh Qwen2.5-VL-7B-Instruct videojudgepreference0,videojudgepreference1,videojudgepreference2,videojudgepreference3,videojudgepreference4,videojudgepreference5,videojudgepreference6,videojudgepreference7,videojudgepreference8,videojudgepreference9,videojudgepreference10,videojudgepreference11,videojudgepreference12,videojudgepreference13,videojudgepreference14 2,3 &> logs/sft_7b_preference_data_ablation_150K.log &
